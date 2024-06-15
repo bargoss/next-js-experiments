@@ -1,41 +1,67 @@
+
 "use client";
-import './todo.css';
+import './ttt.css';
 import { useState } from 'react';
+import {Besley} from "next/dist/compiled/@next/font/dist/google";
 
 export default function Home() {
-    let [tasks, setTasks] = useState([
-        { id: 1, description: "barans task" },
-        { id: 2, description: "emirs task" }
+    let [chatHistory, setChatHistory] = useState([
+        {name: "baran", message: "Hello!"},
+        {name: "emir", message: "Hi!"}
     ]);
-
-    let [inputString, setInputString] = useState("");
+    let [newMessage, setNewMessage] = useState("");
     
+    let [gameState, setGameState] = useState({
+        board: Array(9).fill(""),
+        xIsNext: true
+    });
+    
+    function checkWinner(board) {
+        const winLines = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+        
+        for (let i = 0; i < winLines.length; i++) {
+            const [a, b, c] = winLines[i];
+            if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                let itsAPlayer = board[a] === "X" || board[a] === "O";
+                if (itsAPlayer) {
+                    return board[a];
+                }
+            }
+        }
+        
+        return null;
+    }
 
     return (
         <div className="container">
-            <div className="container-header">
-                <input value={inputString} type="text" placeholder="Add a task" onChange={(event)=>{
-                    setInputString(event.target.value);
-                }} />
-                <button onClick={() =>{
-                    // select the biggest id and return +1
-                    setTasks([...tasks, {id: Math.max(...tasks.map(t => t.id), 0) + 1, description: inputString}]);
-                    setInputString("");         
-                } 
-                }>Add</button>
+            <div className="left-area">
+                <div className="status-bar">
+                    <p>Next player: X</p>
+                </div>
+                <div className="board">
+                    {gameState.board.map((cell, index) => (
+                        <button className="cell" key={index}>
+                            {cell}
+                        </button>
+                    ))}
+                </div>
             </div>
-
-            <div className="container-body">
-                {tasks.map(task => (
-                    <div className="task" key={task.id}>
-                        <p>{task.description}</p>
-                        <button onClick={
-                            () => {
-                                setTasks(tasks.filter(t => t.id !== task.id));
-                            }
-                        }>Delete</button>
-                    </div>
-                ))}
+            <div className="right-area">
+                <div className="chat-history">
+                    {chatHistory.map(chat => (
+                        <div className="chat-msg" key={chat.message}>
+                            <p>{chat.name}: {chat.message}</p>
+                        </div>
+                    ))}
+                </div>
+                <div className="chat-new-msg">
+                    <textarea type="text" placeholder="Enter message"/>
+                    <button>Send</button>
+                </div>
             </div>
         </div>
     );
